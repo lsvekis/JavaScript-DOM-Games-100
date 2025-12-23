@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Game 101 — DOM Capstone</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <a class="skip-link" href="#playfield">Skip to game</a>
+
+  <header class="topbar" role="banner">
+    <div class="brand">
+      <span class="badge" aria-hidden="true">Game 101</span>
+      <div>
+        <h1 class="title">Neon Drift: Survival Sprint</h1>
+        <p class="subtitle">Move • Dodge • Collect • Scale</p>
+      </div>
+    </div>
+
+    <div class="hud" aria-label="Game status">
+      <div class="hud-item">
+        <span class="hud-label">Score</span>
+        <span id="score" class="hud-value" aria-live="off">0</span>
+      </div>
+      <div class="hud-item">
+        <span class="hud-label">Best</span>
+        <span id="best" class="hud-value" aria-live="off">0</span>
+      </div>
+      <div class="hud-item">
+        <span class="hud-label">Level</span>
+        <span id="level" class="hud-value" aria-live="off">1</span>
+      </div>
+      <div class="hud-item">
+        <span class="hud-label">Lives</span>
+        <span id="lives" class="hud-value" aria-live="off">3</span>
+      </div>
+
+      <button id="btnPause" class="btn btn-ghost" type="button" aria-keyshortcuts="P">
+        Pause (P)
+      </button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <!-- Left: game -->
+    <section class="game-wrap" aria-label="Game area">
+      <div
+        id="playfield"
+        class="playfield"
+        role="application"
+        aria-label="Neon Drift playfield"
+        tabindex="0"
+      >
+        <!-- Player -->
+        <div id="player" class="player" role="img" aria-label="Player"></div>
+
+        <!-- Collectible -->
+        <div id="orb" class="orb" role="img" aria-label="Energy orb"></div>
+
+        <!-- Enemies container -->
+        <div id="enemies" class="enemies" aria-hidden="true"></div>
+      </div>
+
+      <!-- Live region announcements (screen readers) -->
+      <div id="srStatus" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+      <!-- Overlay screens -->
+      <section id="overlay" class="overlay" aria-hidden="false">
+        <!-- Start Screen -->
+        <div id="screenStart" class="screen" role="dialog" aria-modal="true" aria-labelledby="startTitle">
+          <h2 id="startTitle">Welcome to Neon Drift</h2>
+          <p class="screen-text">
+            Collect the <strong>orb</strong> to score. Dodge <strong>hazards</strong>. The game gets faster each level.
+          </p>
+          <ul class="screen-list">
+            <li><strong>Move:</strong> Arrow keys / WASD</li>
+            <li><strong>Dash:</strong> Space (short burst, cooldown)</li>
+            <li><strong>Pause:</strong> P</li>
+            <li><strong>Mouse:</strong> Optional “follow mouse” toggle in Settings</li>
+          </ul>
+
+          <div class="screen-actions">
+            <button id="btnStart" class="btn" type="button">Start Game</button>
+            <button id="btnHow" class="btn btn-ghost" type="button">How it works</button>
+          </div>
+
+          <details class="details">
+            <summary>Vibe Learning: Try these AI prompts</summary>
+            <div class="details-body">
+              <p>Ask your AI assistant:</p>
+              <ul>
+                <li>“Explain how requestAnimationFrame creates a game loop.”</li>
+                <li>“What’s the difference between position, velocity, and acceleration in games?”</li>
+                <li>“How do I design fair difficulty scaling?”</li>
+              </ul>
+              <p class="hint">Then come back and map those answers to the code you’re about to read.</p>
+            </div>
+          </details>
+        </div>
+
+        <!-- Help Screen -->
+        <div id="screenHow" class="screen hidden" role="dialog" aria-modal="true" aria-labelledby="howTitle">
+          <h2 id="howTitle">How this game is built</h2>
+          <p class="screen-text">
+            This capstone uses: a <strong>single state object</strong>, a <strong>game loop</strong>,
+            a <strong>renderer</strong>, and <strong>systems</strong> (player, enemies, collisions, scaling).
+          </p>
+          <ol class="screen-list">
+            <li>Input updates <strong>intent</strong> (keys, optional mouse).</li>
+            <li>Loop updates <strong>physics</strong> (position + velocity).</li>
+            <li>Systems spawn and move hazards.</li>
+            <li>Collision resolves hits; score grows; level scales difficulty.</li>
+            <li>UI renders from state; best score + settings persist.</li>
+          </ol>
+          <div class="screen-actions">
+            <button id="btnBackFromHow" class="btn btn-ghost" type="button">Back</button>
+          </div>
+        </div>
+
+        <!-- Pause Screen -->
+        <div id="screenPause" class="screen hidden" role="dialog" aria-modal="true" aria-labelledby="pauseTitle">
+          <h2 id="pauseTitle">Paused</h2>
+          <p class="screen-text">Press <strong>P</strong> to resume, or use the buttons below.</p>
+          <div class="screen-actions">
+            <button id="btnResume" class="btn" type="button">Resume</button>
+            <button id="btnRestart" class="btn btn-ghost" type="button">Restart</button>
+            <button id="btnSettings" class="btn btn-ghost" type="button">Settings</button>
+          </div>
+        </div>
+
+        <!-- Settings Screen -->
+        <div id="screenSettings" class="screen hidden" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+          <h2 id="settingsTitle">Settings</h2>
+
+          <div class="settings-grid" role="group" aria-label="Game settings">
+            <label class="toggle">
+              <input id="toggleSound" type="checkbox" />
+              <span>Sound effects</span>
+            </label>
+
+            <label class="toggle">
+              <input id="toggleReducedMotion" type="checkbox" />
+              <span>Reduced motion</span>
+            </label>
+
+            <label class="toggle">
+              <input id="toggleMouseFollow" type="checkbox" />
+              <span>Mouse follow mode</span>
+            </label>
+          </div>
+
+          <p class="screen-text small">
+            Accessibility note: the game is fully playable with keyboard only. Reduced motion limits camera-like effects.
+          </p>
+
+          <div class="screen-actions">
+            <button id="btnBackFromSettings" class="btn btn-ghost" type="button">Back</button>
+          </div>
+        </div>
+
+        <!-- Game Over Screen -->
+        <div id="screenOver" class="screen hidden" role="dialog" aria-modal="true" aria-labelledby="overTitle">
+          <h2 id="overTitle">Game Over</h2>
+          <p class="screen-text">
+            Final score: <strong><span id="finalScore">0</span></strong>
+            <span id="newBest" class="pill hidden" aria-live="polite">New Best!</span>
+          </p>
+          <div class="screen-actions">
+            <button id="btnPlayAgain" class="btn" type="button">Play Again</button>
+            <button id="btnOverSettings" class="btn btn-ghost" type="button">Settings</button>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <!-- Right: mini “dev panel” (teaches + reinforces) -->
+    <aside class="side" aria-label="Learning panel">
+      <section class="card">
+        <h2 class="card-title">What you’re practicing</h2>
+        <ul class="card-list">
+          <li><strong>State:</strong> one object controls the entire game.</li>
+          <li><strong>Loop:</strong> requestAnimationFrame updates physics.</li>
+          <li><strong>Systems:</strong> spawn hazards, scale difficulty, detect collisions.</li>
+          <li><strong>UX:</strong> screens + feedback + persistence + accessibility.</li>
+        </ul>
+      </section>
+
+      <section class="card">
+        <h2 class="card-title">Knowledge check</h2>
+        <ol class="card-list">
+          <li>Why keep positions in JS instead of reading from the DOM?</li>
+          <li>Why throttle DOM updates?</li>
+          <li>Why lock input during overlays?</li>
+          <li>What makes difficulty feel fair?</li>
+          <li>What does “single source of truth” mean?</li>
+        </ol>
+        <p class="hint">
+          Use the code comments in <code>script.js</code> to answer each.
+        </p>
+      </section>
+    </aside>
+  </main>
+
+  <footer class="footer">
+    <p>
+      Controls: <strong>WASD / Arrows</strong>, <strong>Space</strong> Dash, <strong>P</strong> Pause.
+      Tip: focus the playfield then play keyboard-only.
+    </p>
+  </footer>
+
+  <script src="script.js" defer></script>
+</body>
+</html>

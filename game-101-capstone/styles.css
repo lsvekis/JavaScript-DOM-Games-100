@@ -1,0 +1,269 @@
+:root {
+  --bg: #0b1220;
+  --panel: #0f1b33;
+  --text: #e9efff;
+  --muted: #b7c2e6;
+  --border: rgba(255,255,255,0.12);
+
+  --accent: #6ee7ff;
+  --accent2: #a78bfa;
+  --danger: #ff6b6b;
+  --warn: #ffd166;
+  --good: #7CFFB2;
+
+  --shadow: 0 10px 30px rgba(0,0,0,0.35);
+  --radius: 18px;
+  --focus: 0 0 0 3px rgba(110,231,255,0.35);
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  background: radial-gradient(1200px 700px at 30% 10%, #162651 0%, var(--bg) 60%);
+  color: var(--text);
+  font: 16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+
+a { color: var(--accent); }
+
+.skip-link {
+  position: absolute;
+  left: -999px;
+  top: 8px;
+  padding: 8px 10px;
+  background: #000;
+  color: #fff;
+  border-radius: 10px;
+  z-index: 1000;
+}
+.skip-link:focus { left: 12px; }
+
+.topbar {
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(10px);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(110,231,255,0.22), rgba(167,139,250,0.22));
+  border: 1px solid var(--border);
+  font-weight: 700;
+}
+.title { margin: 0; font-size: 18px; }
+.subtitle { margin: 2px 0 0; color: var(--muted); font-size: 13px; }
+
+.hud {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.hud-item {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--border);
+  padding: 8px 10px;
+  border-radius: 14px;
+  min-width: 92px;
+}
+.hud-label { display: block; color: var(--muted); font-size: 12px; }
+.hud-value { display: block; font-weight: 800; font-size: 16px; }
+
+.btn {
+  appearance: none;
+  border: 1px solid var(--border);
+  color: var(--text);
+  background: linear-gradient(135deg, rgba(110,231,255,0.18), rgba(167,139,250,0.18));
+  padding: 9px 12px;
+  border-radius: 14px;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  font-weight: 700;
+}
+.btn:hover { filter: brightness(1.08); }
+.btn:focus { outline: none; box-shadow: var(--shadow), var(--focus); }
+.btn-ghost {
+  background: rgba(255,255,255,0.06);
+  box-shadow: none;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 330px;
+  gap: 16px;
+  padding: 16px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.game-wrap {
+  position: relative;
+}
+
+.playfield {
+  position: relative;
+  width: 100%;
+  height: 560px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background:
+    radial-gradient(900px 450px at 70% 20%, rgba(110,231,255,0.14) 0%, transparent 60%),
+    radial-gradient(900px 450px at 20% 70%, rgba(167,139,250,0.12) 0%, transparent 55%),
+    rgba(255,255,255,0.04);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  outline: none;
+}
+.playfield:focus { box-shadow: var(--shadow), var(--focus); }
+
+.player {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  box-shadow: 0 0 20px rgba(110,231,255,0.25);
+  transform: translate(200px, 200px);
+}
+
+.orb {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: radial-gradient(circle at 30% 30%, #fff 0%, var(--good) 35%, rgba(124,255,178,0.2) 70%);
+  box-shadow: 0 0 18px rgba(124,255,178,0.35);
+  transform: translate(300px, 180px);
+}
+
+.enemies .enemy {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border-radius: 6px;
+  background: linear-gradient(135deg, rgba(255,107,107,1), rgba(255,209,102,0.85));
+  box-shadow: 0 0 14px rgba(255,107,107,0.28);
+  transform: translate(-999px, -999px);
+}
+
+/* Not color-only feedback: shape changes */
+.enemies .enemy.fast {
+  border-radius: 999px; /* circle means "fast hazard" */
+}
+.enemies .enemy.heavy {
+  width: 24px;
+  height: 24px; /* larger means "heavy hazard" */
+}
+
+/* Overlay */
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  background: rgba(5,10,22,0.66);
+  backdrop-filter: blur(10px);
+}
+.screen {
+  width: min(640px, 100%);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.06));
+  box-shadow: var(--shadow);
+  padding: 18px 18px 16px;
+}
+.hidden { display: none; }
+
+.screen h2 { margin: 0 0 8px; }
+.screen-text { margin: 0 0 12px; color: var(--muted); }
+.screen-text.small { font-size: 13px; }
+.screen-list { color: var(--text); margin: 0 0 14px 18px; }
+.screen-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+.details summary { cursor: pointer; color: var(--accent); }
+.details-body { margin-top: 10px; color: var(--muted); }
+
+.pill {
+  display: inline-block;
+  margin-left: 10px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: rgba(124,255,178,0.12);
+  color: var(--good);
+  font-weight: 800;
+}
+
+.settings-grid {
+  display: grid;
+  gap: 10px;
+  margin: 10px 0 12px;
+}
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.06);
+}
+.toggle input { transform: scale(1.15); }
+
+.side {
+  display: grid;
+  gap: 12px;
+  align-content: start;
+}
+.card {
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.05);
+  padding: 14px;
+  box-shadow: var(--shadow);
+}
+.card-title { margin: 0 0 10px; font-size: 16px; }
+.card-list { margin: 0; padding-left: 18px; color: var(--muted); }
+.hint { color: var(--muted); font-size: 13px; margin: 10px 0 0; }
+
+.footer {
+  padding: 10px 16px 16px;
+  color: var(--muted);
+  text-align: center;
+  border-top: 1px solid var(--border);
+}
+
+/* Screen-reader-only utility */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Reduced motion (applied via class on body) */
+body.reduced-motion * {
+  transition: none !important;
+  animation: none !important;
+}
