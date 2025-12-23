@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Game 044 — JavaScript DOM Game</title>
+  <style>
+    :root{--t:#0b1220;--m:#5b6473;--bd:#e6eaf1;--blue:#0a4fd6;--bg:#f7f9fc;--card:#ffffff;--soft:#eef3ff}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--t)}
+    header{padding:18px 16px;border-bottom:1px solid var(--bd);background:#fff}
+    header h1{margin:0;font-size:20px}
+    header p{margin:6px 0 0;color:var(--m)}
+    main{max-width:980px;margin:0 auto;padding:16px}
+    .row{display:grid;gap:12px}
+    .card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:14px;box-shadow:0 10px 25px rgba(0,0,0,.05)}
+    .btn{appearance:none;border:1px solid var(--bd);background:#fff;border-radius:12px;padding:10px 12px;cursor:pointer;font-weight:600}
+    .btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+    .btn:disabled{opacity:.55;cursor:not-allowed}
+    .muted{color:var(--m)}
+    .tag{display:inline-block;font-size:12px;color:var(--m);background:var(--soft);border:1px solid #d8e4ff;padding:2px 8px;border-radius:999px}
+    a{color:var(--blue);text-decoration:none}
+    a:hover{text-decoration:underline}
+    code{background:var(--soft);border:1px solid #d8e4ff;padding:1px 6px;border-radius:8px}
+    
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Game 044 — JavaScript DOM Game</h1>
+    <p class="muted">Self-contained DOM game • No build tools • Open in browser</p>
+  </header>
+  <main>
+    
+<div class="row">
+  <div class="card">
+    <p>Press <b>Start</b>. Wait for the signal, then click <b>NOW!</b> as fast as you can.</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:10px">
+      <button class="btn" id="start">Start</button>
+      <button class="btn primary" id="now" disabled>NOW!</button>
+      <button class="btn" id="reset">Reset</button>
+      <span class="tag">Best: <b id="best">—</b></span>
+    </div>
+    <div class="card" style="margin-top:12px;background:var(--soft)">
+      <b id="status">Ready.</b>
+      <div class="muted" id="detail" style="margin-top:6px">Don’t click early.</div>
+    </div>
+  </div>
+  <div class="card">
+    <h3 style="margin:0 0 8px">What you learn</h3>
+    <ul>
+      <li>Random delays with <code>setTimeout</code></li>
+      <li>Measuring time with <code>performance.now()</code></li>
+      <li>Preventing early/invalid actions</li>
+    </ul>
+  </div>
+</div>
+
+    <p style="margin-top:14px"><a href="../index.html">← Back to Chapter</a> • <a href="../../index.html">Root Launcher</a></p>
+  </main>
+  <script>
+  "use strict";
+  
+const startBtn = document.getElementById('start');
+const nowBtn = document.getElementById('now');
+const resetBtn = document.getElementById('reset');
+const statusEl = document.getElementById('status');
+const detailEl = document.getElementById('detail');
+const bestEl = document.getElementById('best');
+
+let timeoutId = null;
+let startTime = null;
+let armed = false;
+let best = null;
+
+function setState(s, d){
+  statusEl.textContent = s;
+  detailEl.textContent = d;
+}
+function renderBest(){
+  bestEl.textContent = best === null ? '—' : `${best.toFixed(0)} ms`;
+}
+
+startBtn.addEventListener('click', () => {
+  if (armed || timeoutId) return;
+  setState('Waiting…', 'Get ready. The signal will appear soon.');
+  const delay = 800 + Math.random() * 2200;
+  timeoutId = setTimeout(() => {
+    timeoutId = null;
+    armed = true;
+    startTime = performance.now();
+    nowBtn.disabled = false;
+    setState('GO!', 'Click NOW!');
+  }, delay);
+});
+
+nowBtn.addEventListener('click', () => {
+  if (!armed) {
+    setState('Too early!', 'Press Start again and wait for GO.');
+    return;
+  }
+  const rt = performance.now() - startTime;
+  armed = false;
+  nowBtn.disabled = true;
+  setState('Result', `Your reaction time: ${rt.toFixed(0)} ms`);
+  if (best === null || rt < best) best = rt;
+  renderBest();
+});
+
+resetBtn.addEventListener('click', () => {
+  clearTimeout(timeoutId);
+  timeoutId = null;
+  armed = false;
+  nowBtn.disabled = true;
+  startTime = null;
+  best = null;
+  renderBest();
+  setState('Ready.', 'Press Start.');
+});
+renderBest();
+
+  </script>
+</body>
+</html>

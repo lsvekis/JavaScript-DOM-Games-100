@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Game 39 — Sound Pad</title>
+  <style>
+    body{font-family:system-ui;padding:24px;background:#fafafa}
+    .row{display:flex;gap:12px;flex-wrap:wrap}
+    .pad{width:140px;height:140px;border:1px solid #ddd;border-radius:18px;display:grid;place-items:center;
+      font-weight:900;font-size:22px;cursor:pointer;user-select:none;background:#fff}
+    .pad.on{background:#111;color:#fff;border-color:#111}
+    .card{max-width:900px;border:1px solid #ddd;border-radius:14px;padding:16px;background:#fff}
+    p{color:#555}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Sound Pad</h1>
+    <p>Click pads or press A/S/D/F.</p>
+    <div class="row" id="pads"></div>
+  </div>
+
+  <script>
+    const padsEl = document.querySelector('#pads');
+
+    const pads = [
+      { key: 'a', label: 'A', freq: 220 },
+      { key: 's', label: 'S', freq: 277 },
+      { key: 'd', label: 'D', freq: 330 },
+      { key: 'f', label: 'F', freq: 440 },
+    ];
+
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    const ctx = new AudioCtx();
+
+    function beep(freq) {
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.frequency.value = freq;
+      o.type = 'sine';
+      g.gain.value = 0.12;
+      o.connect(g);
+      g.connect(ctx.destination);
+      o.start();
+      o.stop(ctx.currentTime + 0.12);
+    }
+
+    function flash(el) {
+      if (!el) return;
+      el.classList.add('on');
+      setTimeout(() => el.classList.remove('on'), 120);
+    }
+
+    function triggerByKey(k) {
+      const pad = pads.find(p => p.key === k);
+      if (!pad) return;
+      const el = document.querySelector(`.pad[data-key="${k}"]`);
+      beep(pad.freq);
+      flash(el);
+    }
+
+    pads.forEach(p => {
+      const div = document.createElement('div');
+      div.className = 'pad';
+      div.dataset.key = p.key;
+      div.textContent = p.label;
+      div.addEventListener('click', () => triggerByKey(p.key));
+      padsEl.appendChild(div);
+    });
+
+    window.addEventListener('keydown', (e) => triggerByKey(e.key.toLowerCase()));
+  </script>
+</body>
+</html>

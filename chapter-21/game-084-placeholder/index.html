@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Game 084 — JavaScript DOM Game</title>
+  <style>
+    :root{--t:#0b1220;--m:#5b6473;--bd:#e6eaf1;--blue:#0a4fd6;--bg:#f7f9fc;--card:#ffffff;--soft:#eef3ff}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--t)}
+    header{padding:18px 16px;border-bottom:1px solid var(--bd);background:#fff}
+    header h1{margin:0;font-size:20px}
+    header p{margin:6px 0 0;color:var(--m)}
+    main{max-width:980px;margin:0 auto;padding:16px}
+    .row{display:grid;gap:12px}
+    .card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:14px;box-shadow:0 10px 25px rgba(0,0,0,.05)}
+    .btn{appearance:none;border:1px solid var(--bd);background:#fff;border-radius:12px;padding:10px 12px;cursor:pointer;font-weight:600}
+    .btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+    .btn:disabled{opacity:.55;cursor:not-allowed}
+    .muted{color:var(--m)}
+    .tag{display:inline-block;font-size:12px;color:var(--m);background:var(--soft);border:1px solid #d8e4ff;padding:2px 8px;border-radius:999px}
+    a{color:var(--blue);text-decoration:none}
+    a:hover{text-decoration:underline}
+    code{background:var(--soft);border:1px solid #d8e4ff;padding:1px 6px;border-radius:8px}
+    
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Game 084 — JavaScript DOM Game</h1>
+    <p class="muted">Self-contained DOM game • No build tools • Open in browser</p>
+  </header>
+  <main>
+    
+<div class="row">
+  <div class="card">
+    <p>Answer 5 quick JavaScript/DOM questions. Use A/B/C/D keys or click.</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:10px">
+      <button class="btn" id="start">Start</button>
+      <button class="btn" id="restart">Restart</button>
+      <span class="tag">Score: <b id="score">0</b>/5</span>
+      <span class="tag">Q: <b id="qnum">0</b>/5</span>
+    </div>
+    <div class="card" style="margin-top:12px">
+      <h3 id="q" style="margin:0 0 10px">Press Start</h3>
+      <div id="answers" class="row"></div>
+      <p class="muted" id="msg" style="margin:10px 0 0"></p>
+    </div>
+  </div>
+  <div class="card">
+    <h3 style="margin:0 0 8px">What you learn</h3>
+    <ul>
+      <li>Rendering from data</li>
+      <li>Keyboard input mapping</li>
+      <li>State flow: idle → playing → done</li>
+    </ul>
+  </div>
+</div>
+
+    <p style="margin-top:14px"><a href="../index.html">← Back to Chapter</a> • <a href="../../index.html">Root Launcher</a></p>
+  </main>
+  <script>
+  "use strict";
+  
+const startBtn = document.getElementById('start');
+const restartBtn = document.getElementById('restart');
+const qEl = document.getElementById('q');
+const answersEl = document.getElementById('answers');
+const scoreEl = document.getElementById('score');
+const qnumEl = document.getElementById('qnum');
+const msgEl = document.getElementById('msg');
+
+const QUESTIONS = [["Which method adds a click handler?", ["addEventListener", "querySelector", "setInterval", "toFixed"], 0], ["What does querySelector return?", ["All matches", "First match", "A number", "A style"], 1], ["Which stores key/value strings in browser?", ["fetch", "localStorage", "Math", "JSON"], 1], ["Which creates a random 1\u20136 die roll?", ["Math.random()*6", "Math.floor(Math.random()*6)+1", "Math.round(Math.random()*6)", "parseInt(Math.random())"], 1], ["Which stops an interval?", ["clearInterval", "stopInterval", "endInterval", "pauseInterval"], 0]];
+let order = [];
+let i = 0;
+let score = 0;
+let state = 'idle';
+
+function shuffle(arr){
+  for (let k=arr.length-1;k>0;k--) {
+    const j = Math.floor(Math.random()*(k+1));
+    [arr[k],arr[j]]=[arr[j],arr[k]];
+  }
+  return arr;
+}
+
+function render(){
+  scoreEl.textContent = String(score);
+  qnumEl.textContent = state==='playing' ? String(i+1) : (state==='done'?'5':'0');
+}
+
+function showQuestion(){
+  const [q, options, correct] = order[i];
+  qEl.textContent = q;
+  answersEl.innerHTML = '';
+  msgEl.textContent = 'Choose: A, B, C, or D';
+  options.forEach((txt, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'btn';
+    btn.textContent = `${String.fromCharCode(65+idx)}) ${txt}`;
+    btn.addEventListener('click', () => answer(idx));
+    answersEl.appendChild(btn);
+  });
+  render();
+}
+
+function answer(idx){
+  if (state !== 'playing') return;
+  const correct = order[i][2];
+  if (idx === correct) {
+    score++;
+    msgEl.textContent = '✅ Correct!';
+  } else {
+    msgEl.textContent = `❌ Not quite. Correct was ${String.fromCharCode(65+correct)}.`;
+  }
+  i++;
+  if (i >= order.length) {
+    state = 'done';
+    qEl.textContent = `Finished! Score: ${score}/5`;
+    answersEl.innerHTML = '';
+    msgEl.textContent = 'Restart to try again.';
+    render();
+  } else {
+    setTimeout(showQuestion, 500);
+  }
+}
+
+function start(){
+  order = shuffle([...QUESTIONS]);
+  i = 0;
+  score = 0;
+  state = 'playing';
+  showQuestion();
+}
+
+startBtn.addEventListener('click', start);
+restartBtn.addEventListener('click', start);
+
+document.addEventListener('keydown', (e) => {
+  const k = e.key.toLowerCase();
+  const map = {a:0,b:1,c:2,d:3};
+  if (k in map) answer(map[k]);
+});
+
+render();
+
+  </script>
+</body>
+</html>

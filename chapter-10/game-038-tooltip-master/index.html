@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Game 38 — Tooltip Master</title>
+  <style>
+    body{font-family:system-ui;padding:24px;line-height:1.6;background:#fafafa}
+    .tip{position:fixed;left:0;top:0;transform:translate(-9999px,-9999px);
+      background:#111;color:#fff;padding:8px 10px;border-radius:10px;font-size:13px;pointer-events:none}
+    .word{border-bottom:2px dotted #aaa;cursor:help}
+    .card{max-width:900px;border:1px solid #ddd;border-radius:14px;padding:16px;background:#fff}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Tooltip Master</h1>
+    <p>
+      Hover <span class="word" data-tip="A tree of nodes representing the page">DOM</span>,
+      <span class="word" data-tip="Something that happens like click or keydown">event</span>,
+      <span class="word" data-tip="Your app's memory (score, level, etc.)">state</span>.
+    </p>
+  </div>
+
+  <div class="tip" id="tip"></div>
+
+  <script>
+    const tip = document.querySelector('#tip');
+
+    function show(text) { tip.textContent = text; }
+    function move(x,y) { tip.style.transform = `translate(${x + 14}px, ${y + 14}px)`; }
+    function hide() { tip.style.transform = 'translate(-9999px,-9999px)'; }
+
+    document.addEventListener('mousemove', (e) => move(e.clientX, e.clientY));
+
+    document.addEventListener('mouseenter', (e) => {
+      const w = e.target.closest('.word');
+      if (!w) return;
+      show(w.dataset.tip);
+    }, true);
+
+    document.addEventListener('mouseleave', (e) => {
+      const w = e.target.closest('.word');
+      if (!w) return;
+      hide();
+    }, true);
+  </script>
+</body>
+</html>

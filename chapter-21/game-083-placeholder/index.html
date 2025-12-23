@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Game 083 — JavaScript DOM Game</title>
+  <style>
+    :root{--t:#0b1220;--m:#5b6473;--bd:#e6eaf1;--blue:#0a4fd6;--bg:#f7f9fc;--card:#ffffff;--soft:#eef3ff}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--t)}
+    header{padding:18px 16px;border-bottom:1px solid var(--bd);background:#fff}
+    header h1{margin:0;font-size:20px}
+    header p{margin:6px 0 0;color:var(--m)}
+    main{max-width:980px;margin:0 auto;padding:16px}
+    .row{display:grid;gap:12px}
+    .card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:14px;box-shadow:0 10px 25px rgba(0,0,0,.05)}
+    .btn{appearance:none;border:1px solid var(--bd);background:#fff;border-radius:12px;padding:10px 12px;cursor:pointer;font-weight:600}
+    .btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+    .btn:disabled{opacity:.55;cursor:not-allowed}
+    .muted{color:var(--m)}
+    .tag{display:inline-block;font-size:12px;color:var(--m);background:var(--soft);border:1px solid #d8e4ff;padding:2px 8px;border-radius:999px}
+    a{color:var(--blue);text-decoration:none}
+    a:hover{text-decoration:underline}
+    code{background:var(--soft);border:1px solid #d8e4ff;padding:1px 6px;border-radius:8px}
+    
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Game 083 — JavaScript DOM Game</h1>
+    <p class="muted">Self-contained DOM game • No build tools • Open in browser</p>
+  </header>
+  <main>
+    
+<div class="row">
+  <div class="card">
+    <p>Tic-Tac-Toe (2 players). Click a cell to place your mark.</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:10px">
+      <button class="btn" id="reset">Reset</button>
+      <span class="tag">Turn: <b id="turn">X</b></span>
+      <span class="tag"><b id="status">Playing</b></span>
+    </div>
+    <div id="board" style="margin-top:12px;display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:360px"></div>
+  </div>
+  <div class="card">
+    <h3 style="margin:0 0 8px">What you learn</h3>
+    <ul>
+      <li>Arrays as board state</li>
+      <li>Win checking logic</li>
+      <li>Re-rendering UI from state</li>
+    </ul>
+  </div>
+</div>
+
+    <p style="margin-top:14px"><a href="../index.html">← Back to Chapter</a> • <a href="../../index.html">Root Launcher</a></p>
+  </main>
+  <script>
+  "use strict";
+  
+const boardEl = document.getElementById('board');
+const resetBtn = document.getElementById('reset');
+const turnEl = document.getElementById('turn');
+const statusEl = document.getElementById('status');
+
+let board = Array(9).fill('');
+let turn = 'X';
+let over = false;
+
+const wins = [
+  [0,1,2],[3,4,5],[6,7,8],
+  [0,3,6],[1,4,7],[2,5,8],
+  [0,4,8],[2,4,6]
+];
+
+function winner(){
+  for (const [a,b,c] of wins){
+    if (board[a] && board[a] === board[b] && board[a] === board[c]) return board[a];
+  }
+  return null;
+}
+
+function render(){
+  turnEl.textContent = turn;
+  boardEl.innerHTML = '';
+  board.forEach((v, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'btn';
+    btn.style.height = '100px';
+    btn.style.fontSize = '44px';
+    btn.textContent = v || '';
+    btn.disabled = over || Boolean(v);
+    btn.addEventListener('click', () => play(i));
+    boardEl.appendChild(btn);
+  });
+}
+
+function play(i){
+  if (over || board[i]) return;
+  board[i] = turn;
+  const w = winner();
+  if (w){
+    statusEl.textContent = `${w} wins!`;
+    over = true;
+  } else if (board.every(Boolean)){
+    statusEl.textContent = 'Draw!';
+    over = true;
+  } else {
+    turn = (turn === 'X') ? 'O' : 'X';
+  }
+  render();
+}
+
+function reset(){
+  board = Array(9).fill('');
+  turn = 'X';
+  over = false;
+  statusEl.textContent = 'Playing';
+  render();
+}
+
+resetBtn.addEventListener('click', reset);
+reset();
+
+  </script>
+</body>
+</html>

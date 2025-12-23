@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Game 40 — Fetch Trivia Quiz</title>
+  <style>
+    body{font-family:system-ui;padding:24px;background:#fafafa}
+    .card{max-width:860px;border:1px solid #ddd;border-radius:14px;padding:16px;background:#fff}
+    button{padding:10px 14px;cursor:pointer}
+    .answers{display:grid;gap:10px;margin-top:12px}
+    .ans{border:1px solid #ddd;border-radius:12px;background:#fafafa;text-align:left}
+    #msg{margin-top:12px;color:#555}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Fetch Trivia Quiz</h1>
+    <button id="load">Load Question</button>
+    <h2 id="q">—</h2>
+    <div class="answers" id="answers"></div>
+    <div id="msg">Click “Load Question”. (Needs internet)</div>
+  </div>
+
+  <script>
+    const loadBtn = document.querySelector('#load');
+    const qEl = document.querySelector('#q');
+    const answersEl = document.querySelector('#answers');
+    const msgEl = document.querySelector('#msg');
+
+    let correct = '';
+
+    function decodeHtml(s) {
+      const t = document.createElement('textarea');
+      t.innerHTML = s;
+      return t.value;
+    }
+
+    function shuffle(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    async function loadQuestion() {
+      msgEl.textContent = 'Loading…';
+      answersEl.innerHTML = '';
+      qEl.textContent = '—';
+
+      try {
+        const res = await fetch('https://opentdb.com/api.php?amount=1&type=multiple');
+        const data = await res.json();
+        const item = data.results[0];
+
+        const question = decodeHtml(item.question);
+        correct = decodeHtml(item.correct_answer);
+
+        const answers = shuffle([
+          correct,
+          ...item.incorrect_answers.map(decodeHtml)
+        ]);
+
+        qEl.textContent = question;
+        msgEl.textContent = 'Pick an answer:';
+
+        answers.forEach(a => {
+          const btn = document.createElement('button');
+          btn.className = 'ans';
+          btn.textContent = a;
+          btn.addEventListener('click', () => {
+            if (a === correct) msgEl.textContent = '✅ Correct!';
+            else msgEl.textContent = `❌ Nope. Correct: ${correct}`;
+          });
+          answersEl.appendChild(btn);
+        });
+      } catch (err) {
+        msgEl.textContent = 'Fetch failed (maybe offline). Try again.';
+      }
+    }
+
+    loadBtn.addEventListener('click', loadQuestion);
+  </script>
+</body>
+</html>

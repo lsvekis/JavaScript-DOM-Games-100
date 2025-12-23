@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Game 069 — JavaScript DOM Game</title>
+  <style>
+    :root{--t:#0b1220;--m:#5b6473;--bd:#e6eaf1;--blue:#0a4fd6;--bg:#f7f9fc;--card:#ffffff;--soft:#eef3ff}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--t)}
+    header{padding:18px 16px;border-bottom:1px solid var(--bd);background:#fff}
+    header h1{margin:0;font-size:20px}
+    header p{margin:6px 0 0;color:var(--m)}
+    main{max-width:980px;margin:0 auto;padding:16px}
+    .row{display:grid;gap:12px}
+    .card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:14px;box-shadow:0 10px 25px rgba(0,0,0,.05)}
+    .btn{appearance:none;border:1px solid var(--bd);background:#fff;border-radius:12px;padding:10px 12px;cursor:pointer;font-weight:600}
+    .btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+    .btn:disabled{opacity:.55;cursor:not-allowed}
+    .muted{color:var(--m)}
+    .tag{display:inline-block;font-size:12px;color:var(--m);background:var(--soft);border:1px solid #d8e4ff;padding:2px 8px;border-radius:999px}
+    a{color:var(--blue);text-decoration:none}
+    a:hover{text-decoration:underline}
+    code{background:var(--soft);border:1px solid #d8e4ff;padding:1px 6px;border-radius:8px}
+    
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Game 069 — JavaScript DOM Game</h1>
+    <p class="muted">Self-contained DOM game • No build tools • Open in browser</p>
+  </header>
+  <main>
+    
+<div class="row">
+  <div class="card">
+    <p>Guess the secret number between <b>1</b> and <b>35</b>. You have limited tries.</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:10px">
+      <input id="inp" type="number" min="1" max="35" placeholder="1-35" style="padding:10px 12px;border:1px solid var(--bd);border-radius:12px;width:140px">
+      <button class="btn primary" id="check">Check</button>
+      <button class="btn" id="new">New Game</button>
+      <span class="tag">Tries left: <b id="tries">6</b></span>
+    </div>
+    <p id="msg" class="muted" style="margin-top:10px"></p>
+  </div>
+  <div class="card">
+    <h3 style="margin:0 0 8px">What you learn</h3>
+    <ul>
+      <li>Input validation</li>
+      <li>Random numbers and ranges</li>
+      <li>Game state + feedback messages</li>
+    </ul>
+  </div>
+</div>
+
+    <p style="margin-top:14px"><a href="../index.html">← Back to Chapter</a> • <a href="../../index.html">Root Launcher</a></p>
+  </main>
+  <script>
+  "use strict";
+  
+const inp = document.getElementById('inp');
+const check = document.getElementById('check');
+const newBtn = document.getElementById('new');
+const triesEl = document.getElementById('tries');
+const msg = document.getElementById('msg');
+
+let secret = 1 + Math.floor(Math.random()*35);
+let tries = 6;
+
+function render(){
+  triesEl.textContent = String(tries);
+}
+
+function setMsg(t){ msg.textContent = t; }
+
+function reset(){
+  secret = 1 + Math.floor(Math.random()*35);
+  tries = 6;
+  inp.value = '';
+  inp.focus();
+  check.disabled = false;
+  setMsg('New number picked. Good luck!');
+  render();
+}
+
+check.addEventListener('click', () => {
+  const val = Number(inp.value);
+  const hint = (val < secret) ? 'Too low.' : 'Too high.';
+  if (!Number.isInteger(val) || val < 1 || val > 35){
+    setMsg('Enter a whole number in range.');
+    return;
+  }
+  if (val === secret){
+    setMsg(`Correct! The number was ${secret}.`);
+    check.disabled = true;
+    return;
+  }
+  triesif = val < secret ? 'Too low.' : 'Too high.';
+  tries--;
+  if (tries <= 0){
+    setMsg(`Out of tries. The number was ${secret}.`);
+    check.disabled = true;
+  } else {
+    setMsg(hint);
+  }
+  render();
+});
+
+newBtn.addEventListener('click', reset);
+reset();
+
+  </script>
+</body>
+</html>

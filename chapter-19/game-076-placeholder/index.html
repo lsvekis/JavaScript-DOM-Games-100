@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Game 076 — JavaScript DOM Game</title>
+  <style>
+    :root{--t:#0b1220;--m:#5b6473;--bd:#e6eaf1;--blue:#0a4fd6;--bg:#f7f9fc;--card:#ffffff;--soft:#eef3ff}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--t)}
+    header{padding:18px 16px;border-bottom:1px solid var(--bd);background:#fff}
+    header h1{margin:0;font-size:20px}
+    header p{margin:6px 0 0;color:var(--m)}
+    main{max-width:980px;margin:0 auto;padding:16px}
+    .row{display:grid;gap:12px}
+    .card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:14px;box-shadow:0 10px 25px rgba(0,0,0,.05)}
+    .btn{appearance:none;border:1px solid var(--bd);background:#fff;border-radius:12px;padding:10px 12px;cursor:pointer;font-weight:600}
+    .btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+    .btn:disabled{opacity:.55;cursor:not-allowed}
+    .muted{color:var(--m)}
+    .tag{display:inline-block;font-size:12px;color:var(--m);background:var(--soft);border:1px solid #d8e4ff;padding:2px 8px;border-radius:999px}
+    a{color:var(--blue);text-decoration:none}
+    a:hover{text-decoration:underline}
+    code{background:var(--soft);border:1px solid #d8e4ff;padding:1px 6px;border-radius:8px}
+    
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Game 076 — JavaScript DOM Game</h1>
+    <p class="muted">Self-contained DOM game • No build tools • Open in browser</p>
+  </header>
+  <main>
+    
+<div class="row">
+  <div class="card">
+    <p>Flip two cards. Match pairs to win. (4×4 grid)</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:10px">
+      <button class="btn" id="new">New Shuffle</button>
+      <span class="tag">Moves: <b id="moves">0</b></span>
+      <span class="tag">Matches: <b id="matches">0</b>/8</span>
+    </div>
+    <div id="grid" style="margin-top:12px;display:grid;grid-template-columns:repeat(4,1fr);gap:10px"></div>
+    <p class="muted" id="msg" style="margin-top:10px"></p>
+  </div>
+  <div class="card">
+    <h3 style="margin:0 0 8px">What you learn</h3>
+    <ul>
+      <li>Rendering a grid from an array</li>
+      <li>State for revealed/matched cards</li>
+      <li>Delayed actions with <code>setTimeout</code></li>
+    </ul>
+  </div>
+</div>
+
+    <p style="margin-top:14px"><a href="../index.html">← Back to Chapter</a> • <a href="../../index.html">Root Launcher</a></p>
+  </main>
+  <script>
+  "use strict";
+  
+const grid = document.getElementById('grid');
+const newBtn = document.getElementById('new');
+const movesEl = document.getElementById('moves');
+const msg = document.getElementById('msg');
+
+let cards = [];
+let first = null;
+let lock = false;
+let moves = 0;
+let matches = 0;
+
+function shuffle(arr){
+  for (let i = arr.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function setup(){
+  const vals = ['🍒','🍋','⭐','💎','🍀','🍇','🔥','🌙'];
+  cards = shuffle([...vals, ...vals]).map((v, idx) => ({
+    id: idx, value: v, revealed: false, matched: false
+  }));
+  first = null;
+  lock = false;
+  moves = 0;
+  matches = 0;
+  msg.textContent = 'Find all pairs.';
+  render();
+}
+
+function render(){
+  movesEl.textContent = String(moves);
+  // Update matches tag
+  const tags = grid.parentElement.querySelectorAll('.tag');
+  tags[2].innerHTML = `Matches: <b id="matches">${matches}</b>/8`;
+
+  grid.innerHTML = '';
+  cards.forEach((c) => {
+    const btn = document.createElement('button');
+    btn.className = 'btn';
+    btn.style.height = '72px';
+    btn.style.fontSize = '26px';
+    btn.style.background = c.matched ? '#eafff0' : (c.revealed ? '#eef3ff' : '#fff');
+    btn.textContent = c.revealed || c.matched ? c.value : '❓';
+    btn.disabled = lock || c.revealed || c.matched;
+    btn.addEventListener('click', () => onFlip(c.id));
+    grid.appendChild(btn);
+  });
+}
+
+function onFlip(id){
+  if (lock) return;
+  const c = cards.find(x => x.id === id);
+  c.revealed = true;
+
+  if (!first){
+    first = c;
+    render();
+    return;
+  }
+
+  moves++;
+  lock = true;
+  render();
+
+  if (first.value === c.value){
+    first.matched = true;
+    c.matched = true;
+    first = null;
+    matches++;
+    lock = false;
+    render();
+    if (matches === 8) msg.textContent = `You win! Moves: ${moves}`;
+  } else {
+    const prev = first;
+    first = null;
+    setTimeout(() => {
+      prev.revealed = false;
+      c.revealed = false;
+      lock = false;
+      render();
+    }, 650);
+  }
+}
+
+newBtn.addEventListener('click', setup);
+setup();
+
+  </script>
+</body>
+</html>
