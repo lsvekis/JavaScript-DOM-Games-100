@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Game 03 — Name Greeter</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; padding: 24px; }
+    .row { display: flex; gap: 10px; margin: 12px 0; flex-wrap: wrap; }
+    input { padding: 10px; font-size: 16px; flex: 1; min-width: 220px; }
+    button { padding: 10px 14px; font-size: 16px; cursor: pointer; }
+    .msg { font-size: 22px; margin-top: 12px; }
+    .hint { color: #555; }
+  </style>
+</head>
+<body>
+  <h1>Name Greeter</h1>
+  <p class="hint">Type your name and press Greet (or hit Enter).</p>
+
+  <div class="row">
+    <input id="name" placeholder="Type your name..." autocomplete="off" />
+    <button id="go">Greet</button>
+    <button id="clear">Clear</button>
+  </div>
+
+  <div class="msg" id="msg">...</div>
+
+  <script>
+    const nameInput = document.querySelector('#name');
+    const goBtn = document.querySelector('#go');
+    const clearBtn = document.querySelector('#clear');
+    const msgEl = document.querySelector('#msg');
+
+    function greet() {
+      const name = nameInput.value.trim();
+      if (!name) {
+        msgEl.textContent = 'Please type your name 🙂';
+        return;
+      }
+      msgEl.textContent = `Hello, ${name}!`;
+    }
+
+    goBtn.addEventListener('click', greet);
+
+    nameInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') greet();
+    });
+
+    clearBtn.addEventListener('click', () => {
+      nameInput.value = '';
+      msgEl.textContent = '...';
+      nameInput.focus();
+    });
+
+    nameInput.focus();
+  </script>
+</body>
+</html>

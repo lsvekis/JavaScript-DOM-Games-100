@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Game 26 — Pomodoro Mini</title>
+  <style>
+    body{font-family:system-ui;padding:24px}
+    .card{max-width:720px;border:1px solid #ddd;border-radius:14px;padding:16px;background:#fff}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:12px 0}
+    button{padding:10px 14px;cursor:pointer}
+    .time{font-size:54px;font-weight:900}
+    p{color:#555}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Pomodoro Mini</h1>
+    <p>Work 25 minutes, then break 5 minutes. Sessions count increments after each work block.</p>
+    <div class="row">
+      <button id="start">Start</button>
+      <button id="pause">Pause</button>
+      <button id="reset">Reset</button>
+    </div>
+    <p>Mode: <b id="mode">Work</b> | Sessions: <b id="sessions">0</b></p>
+    <div class="time" id="time">25:00</div>
+  </div>
+
+  <script>
+    const startBtn = document.querySelector('#start');
+    const pauseBtn = document.querySelector('#pause');
+    const resetBtn = document.querySelector('#reset');
+    const modeEl = document.querySelector('#mode');
+    const sessionsEl = document.querySelector('#sessions');
+    const timeEl = document.querySelector('#time');
+
+    const WORK = 25 * 60;
+    const BREAK = 5 * 60;
+
+    let mode = 'Work';
+    let seconds = WORK;
+    let sessions = 0;
+    let timerId = null;
+
+    function fmt(n){ return String(n).padStart(2,'0'); }
+    function render() {
+      modeEl.textContent = mode;
+      sessionsEl.textContent = String(sessions);
+      timeEl.textContent = `${fmt(Math.floor(seconds/60))}:${fmt(seconds%60)}`;
+    }
+
+    function tick() {
+      seconds -= 1;
+      if (seconds <= 0) {
+        if (mode === 'Work') {
+          sessions += 1;
+          mode = 'Break';
+          seconds = BREAK;
+        } else {
+          mode = 'Work';
+          seconds = WORK;
+        }
+      }
+      render();
+    }
+
+    startBtn.addEventListener('click', () => {
+      if (timerId) return;
+      timerId = setInterval(tick, 1000);
+    });
+
+    pauseBtn.addEventListener('click', () => {
+      if (!timerId) return;
+      clearInterval(timerId);
+      timerId = null;
+    });
+
+    resetBtn.addEventListener('click', () => {
+      if (timerId) { clearInterval(timerId); timerId = null; }
+      mode = 'Work';
+      seconds = WORK;
+      sessions = 0;
+      render();
+    });
+
+    render();
+  </script>
+</body>
+</html>

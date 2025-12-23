@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Game 10 — Button Mash</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; padding: 24px; }
+    .panel { border: 1px solid #ddd; border-radius: 12px; padding: 16px; max-width: 600px; }
+    .stats { display: flex; gap: 16px; margin: 10px 0; flex-wrap: wrap; }
+    .stat { font-size: 18px; }
+    .big { font-size: 34px; margin-top: 10px; }
+    button { padding: 10px 14px; cursor: pointer; font-size: 16px; }
+    #mash { font-size: 20px; padding: 14px 18px; }
+    .row { display: flex; gap: 10px; flex-wrap: wrap; }
+  </style>
+</head>
+<body>
+  <h1>Button Mash</h1>
+
+  <div class="panel">
+    <div class="stats">
+      <div class="stat">Time: <strong><span id="time">5</span>s</strong></div>
+      <div class="stat">Score: <strong><span id="score">0</span></strong></div>
+      <div class="stat">Best: <strong><span id="best">0</span></strong></div>
+    </div>
+
+    <div class="row">
+      <button id="start">Start</button>
+      <button id="mash" disabled>MASH!</button>
+      <button id="reset">Reset</button>
+    </div>
+
+    <div class="big" id="msg">Press Start</div>
+  </div>
+
+  <script>
+    const timeEl = document.querySelector('#time');
+    const scoreEl = document.querySelector('#score');
+    const bestEl = document.querySelector('#best');
+    const msgEl = document.querySelector('#msg');
+
+    const startBtn = document.querySelector('#start');
+    const mashBtn = document.querySelector('#mash');
+    const resetBtn = document.querySelector('#reset');
+
+    let score = 0;
+    let timeLeft = 5;
+    let timerId = null;
+
+    let best = Number(localStorage.getItem('buttonMashBest') || '0');
+
+    function render() {
+      timeEl.textContent = String(timeLeft);
+      scoreEl.textContent = String(score);
+      bestEl.textContent = String(best);
+    }
+
+    function stopGame(message) {
+      if (timerId !== null) {
+        clearInterval(timerId);
+        timerId = null;
+      }
+      mashBtn.disabled = true;
+      msgEl.textContent = message;
+    }
+
+    function startGame() {
+      if (timerId !== null) return; // prevent double start
+      score = 0;
+      timeLeft = 5;
+      render();
+
+      msgEl.textContent = 'GO!';
+      mashBtn.disabled = false;
+
+      timerId = setInterval(() => {
+        timeLeft -= 1;
+        render();
+
+        if (timeLeft <= 0) {
+          if (score > best) {
+            best = score;
+            localStorage.setItem('buttonMashBest', String(best));
+          }
+          render();
+          stopGame(`Time! Final score: ${score}`);
+        }
+      }, 1000);
+    }
+
+    startBtn.addEventListener('click', startGame);
+
+    mashBtn.addEventListener('click', () => {
+      if (timerId === null) return; // only count while running
+      score += 1;
+      render();
+    });
+
+    resetBtn.addEventListener('click', () => {
+      score = 0;
+      timeLeft = 5;
+      render();
+      stopGame('Press Start');
+    });
+
+    render();
+  </script>
+</body>
+</html>

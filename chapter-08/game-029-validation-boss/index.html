@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Game 29 — Validation Boss</title>
+  <style>
+    body{font-family:system-ui;padding:24px}
+    .card{max-width:820px;border:1px solid #ddd;border-radius:14px;padding:16px;background:#fff}
+    .field{margin:10px 0}
+    input{padding:10px;font-size:16px;min-width:280px}
+    .ok{color:green} .bad{color:#b00020}
+    button{padding:10px 14px;cursor:pointer}
+    p{color:#555}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Validation Boss</h1>
+    <p>Live validation: username (min 3), email (contains @ and .), password (min 6 + number).</p>
+
+    <div class="field">
+      <input id="user" placeholder="Username (min 3)" autocomplete="off" />
+      <span id="userMsg"></span>
+    </div>
+
+    <div class="field">
+      <input id="email" placeholder="Email" autocomplete="off" />
+      <span id="emailMsg"></span>
+    </div>
+
+    <div class="field">
+      <input id="pass" placeholder="Password (min 6 + number)" type="password" />
+      <span id="passMsg"></span>
+    </div>
+
+    <button id="submit" disabled>Submit</button>
+    <div id="msg"></div>
+  </div>
+
+  <script>
+    const user = document.querySelector('#user');
+    const email = document.querySelector('#email');
+    const pass = document.querySelector('#pass');
+    const userMsg = document.querySelector('#userMsg');
+    const emailMsg = document.querySelector('#emailMsg');
+    const passMsg = document.querySelector('#passMsg');
+    const submit = document.querySelector('#submit');
+    const msg = document.querySelector('#msg');
+
+    function setStatus(el, ok, text) {
+      el.className = ok ? 'ok' : 'bad';
+      el.textContent = text;
+    }
+
+    function validUsername(v) { return v.trim().length >= 3; }
+    function validEmail(v) { return v.includes('@') && v.includes('.'); }
+    function validPass(v) { return v.length >= 6 && /\d/.test(v); }
+
+    function validate() {
+      const uOk = validUsername(user.value);
+      const eOk = validEmail(email.value);
+      const pOk = validPass(pass.value);
+
+      setStatus(userMsg, uOk, uOk ? 'OK' : 'Too short');
+      setStatus(emailMsg, eOk, eOk ? 'OK' : 'Invalid');
+      setStatus(passMsg, pOk, pOk ? 'OK' : 'Weak');
+
+      submit.disabled = !(uOk && eOk && pOk);
+    }
+
+    [user, email, pass].forEach(i => i.addEventListener('input', validate));
+
+    submit.addEventListener('click', () => {
+      msg.textContent = '✅ Submitted (pretend)!';
+    });
+
+    validate();
+  </script>
+</body>
+</html>

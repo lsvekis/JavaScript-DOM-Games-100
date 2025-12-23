@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Game 30 — Mini Chat UI</title>
+  <style>
+    body{font-family:system-ui;padding:24px}
+    .chat{max-width:820px;border:1px solid #ddd;border-radius:14px;overflow:hidden;background:#fff}
+    .feed{height:320px;overflow:auto;padding:12px;background:#fafafa}
+    .msg{padding:10px 12px;border-radius:12px;background:#fff;border:1px solid #eee;margin:8px 0}
+    .meta{font-size:12px;color:#666;margin-bottom:4px}
+    .row{display:flex;gap:10px;padding:12px;border-top:1px solid #eee;background:#fff}
+    input{flex:1;padding:10px;font-size:16px}
+    button{padding:10px 14px;cursor:pointer}
+    p{color:#555;max-width:820px}
+  </style>
+</head>
+<body>
+  <h1>Mini Chat UI</h1>
+
+  <div class="chat">
+    <div class="feed" id="feed"></div>
+    <div class="row">
+      <input id="text" placeholder="Type a message…" autocomplete="off" />
+      <button id="send">Send</button>
+    </div>
+  </div>
+
+  <p>Commands: <code>/clear</code>, <code>/me your action</code></p>
+
+  <script>
+    const feed = document.querySelector('#feed');
+    const text = document.querySelector('#text');
+    const sendBtn = document.querySelector('#send');
+
+    const KEY = 'domChatMessages_21_30';
+    let messages = JSON.parse(localStorage.getItem(KEY) || '[]');
+
+    function save() {
+      localStorage.setItem(KEY, JSON.stringify(messages));
+    }
+
+    function timeStamp() {
+      const d = new Date();
+      const hh = String(d.getHours()).padStart(2,'0');
+      const mm = String(d.getMinutes()).padStart(2,'0');
+      return `${hh}:${mm}`;
+    }
+
+    function render() {
+      feed.innerHTML = '';
+      messages.forEach(m => {
+        const box = document.createElement('div');
+        box.className = 'msg';
+
+        const meta = document.createElement('div');
+        meta.className = 'meta';
+        meta.textContent = `${m.author} • ${m.time}`;
+
+        const body = document.createElement('div');
+        body.textContent = m.text;
+
+        box.append(meta, body);
+        feed.appendChild(box);
+      });
+      feed.scrollTop = feed.scrollHeight;
+    }
+
+    function addMessage(author, textValue) {
+      messages.push({ author, text: textValue, time: timeStamp() });
+      if (messages.length > 50) messages = messages.slice(-50);
+      save();
+      render();
+    }
+
+    function handleSend() {
+      const v = text.value.trim();
+      if (!v) return;
+
+      if (v === '/clear') {
+        messages = [];
+        save();
+        render();
+        text.value = '';
+        return;
+      }
+      if (v.startsWith('/me ')) {
+        addMessage('Action', `* ${v.slice(4)} *`);
+        text.value = '';
+        return;
+      }
+
+      addMessage('You', v);
+      text.value = '';
+      text.focus();
+    }
+
+    sendBtn.addEventListener('click', handleSend);
+    text.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleSend(); });
+
+    render();
+    text.focus();
+  </script>
+</body>
+</html>

@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Game 32 — Accordion FAQ</title>
+  <style>
+    body{font-family:system-ui;padding:24px;background:#fafafa}
+    .wrap{max-width:860px}
+    .item{border:1px solid #ddd;border-radius:14px;margin:10px 0;overflow:hidden;background:#fff}
+    .q{padding:14px;cursor:pointer;font-weight:800}
+    .a{padding:14px;background:#fafafa;color:#555;display:none}
+    .item.open .a{display:block}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Accordion FAQ</h1>
+    <div id="faq"></div>
+  </div>
+
+  <script>
+    const faq = document.querySelector('#faq');
+
+    const data = [
+      { q: 'What is the DOM?', a: 'The Document Object Model is a JS-accessible structure of the page.' },
+      { q: 'What is state?', a: 'Values your app/game remembers (score, level, items, etc.).' },
+      { q: 'Why render?', a: 'To update the UI from state in a predictable way.' },
+    ];
+
+    function render() {
+      faq.innerHTML = '';
+      data.forEach((item, i) => {
+        const wrap = document.createElement('div');
+        wrap.className = 'item';
+        wrap.dataset.index = String(i);
+
+        const q = document.createElement('div');
+        q.className = 'q';
+        q.textContent = item.q;
+
+        const a = document.createElement('div');
+        a.className = 'a';
+        a.textContent = item.a;
+
+        wrap.append(q, a);
+        faq.appendChild(wrap);
+      });
+    }
+
+    faq.addEventListener('click', (e) => {
+      const q = e.target.closest('.q');
+      if (!q) return;
+      const item = q.parentElement;
+
+      const wasOpen = item.classList.contains('open');
+      faq.querySelectorAll('.item').forEach(x => x.classList.remove('open'));
+      if (!wasOpen) item.classList.add('open');
+    });
+
+    render();
+  </script>
+</body>
+</html>

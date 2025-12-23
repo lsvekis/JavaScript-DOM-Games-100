@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Game 04 — Rock Paper Scissors</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; padding: 24px; }
+    .row { display: flex; gap: 10px; margin: 12px 0; flex-wrap: wrap; }
+    button { padding: 10px 14px; cursor: pointer; font-size: 16px; }
+    .panel { padding: 12px; border: 1px solid #ddd; border-radius: 12px; max-width: 560px; }
+    .big { font-size: 22px; margin-top: 8px; }
+    .score { display: flex; gap: 14px; margin-top: 10px; color: #444; }
+    .hint { color: #555; }
+  </style>
+</head>
+<body>
+  <h1>Rock Paper Scissors</h1>
+  <p class="hint">Pick a move. Computer picks randomly. One round per click.</p>
+
+  <div class="row">
+    <button data-move="rock">Rock</button>
+    <button data-move="paper">Paper</button>
+    <button data-move="scissors">Scissors</button>
+    <button id="reset">Reset Score</button>
+  </div>
+
+  <div class="panel">
+    <div>You chose: <strong id="you">-</strong></div>
+    <div>Computer chose: <strong id="cpu">-</strong></div>
+    <div class="big" id="result">Make a move!</div>
+    <div class="score">
+      <div>You: <span id="youScore">0</span></div>
+      <div>CPU: <span id="cpuScore">0</span></div>
+      <div>Ties: <span id="ties">0</span></div>
+    </div>
+  </div>
+
+  <script>
+    const buttons = document.querySelectorAll('button[data-move]');
+    const youEl = document.querySelector('#you');
+    const cpuEl = document.querySelector('#cpu');
+    const resultEl = document.querySelector('#result');
+
+    const youScoreEl = document.querySelector('#youScore');
+    const cpuScoreEl = document.querySelector('#cpuScore');
+    const tiesEl = document.querySelector('#ties');
+    const resetBtn = document.querySelector('#reset');
+
+    const moves = ['rock', 'paper', 'scissors'];
+    let youScore = 0;
+    let cpuScore = 0;
+    let ties = 0;
+
+    function randomMove() {
+      const i = Math.floor(Math.random() * moves.length);
+      return moves[i];
+    }
+
+    function decideWinner(you, cpu) {
+      if (you === cpu) return 'tie';
+      if (
+        (you === 'rock' && cpu === 'scissors') ||
+        (you === 'paper' && cpu === 'rock') ||
+        (you === 'scissors' && cpu === 'paper')
+      ) return 'you';
+      return 'cpu';
+    }
+
+    function renderScore() {
+      youScoreEl.textContent = String(youScore);
+      cpuScoreEl.textContent = String(cpuScore);
+      tiesEl.textContent = String(ties);
+    }
+
+    buttons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const you = btn.dataset.move;
+        const cpu = randomMove();
+
+        youEl.textContent = you;
+        cpuEl.textContent = cpu;
+
+        const winner = decideWinner(you, cpu);
+        if (winner === 'tie') {
+          ties += 1;
+          resultEl.textContent = 'Tie!';
+        } else if (winner === 'you') {
+          youScore += 1;
+          resultEl.textContent = 'You win!';
+        } else {
+          cpuScore += 1;
+          resultEl.textContent = 'Computer wins!';
+        }
+
+        renderScore();
+      });
+    });
+
+    resetBtn.addEventListener('click', () => {
+      youScore = 0;
+      cpuScore = 0;
+      ties = 0;
+      youEl.textContent = '-';
+      cpuEl.textContent = '-';
+      resultEl.textContent = 'Make a move!';
+      renderScore();
+    });
+
+    renderScore();
+  </script>
+</body>
+</html>

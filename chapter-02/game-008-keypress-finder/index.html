@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Game 08 — Keypress Finder</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; padding: 24px; }
+    .key {
+      font-size: 56px;
+      margin-top: 16px;
+      padding: 14px 18px;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      display: inline-block;
+      min-width: 160px;
+      text-align: center;
+    }
+    .meta { margin-top: 10px; color: #555; }
+  </style>
+</head>
+<body>
+  <h1>Keypress Finder</h1>
+  <p>Press any key…</p>
+
+  <div class="key" id="key">-</div>
+  <div class="meta">
+    code: <span id="code">-</span>
+  </div>
+
+  <script>
+    const keyEl = document.querySelector('#key');
+    const codeEl = document.querySelector('#code');
+
+    window.addEventListener('keydown', (event) => {
+      keyEl.textContent = event.key;
+      codeEl.textContent = event.code;
+    });
+  </script>
+</body>
+</html>

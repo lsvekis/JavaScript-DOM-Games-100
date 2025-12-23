@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Game 35 — Mini Simon</title>
+  <style>
+    body{font-family:system-ui;padding:24px;background:#fafafa}
+    .card{max-width:720px;border:1px solid #ddd;border-radius:14px;padding:16px;background:#fff}
+    .row{display:flex;gap:12px;margin:14px 0;flex-wrap:wrap}
+    button{padding:10px 14px;cursor:pointer}
+    .btn{width:120px;height:120px;border-radius:18px;border:1px solid #ddd;cursor:pointer;font-size:18px;font-weight:900;background:#fafafa}
+    .btn.flash{outline:6px solid rgba(0,0,0,.18)}
+    #msg{color:#555}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Mini Simon</h1>
+    <button id="start">Start</button>
+    <div class="row">
+      <button class="btn" data-id="0">Red</button>
+      <button class="btn" data-id="1">Blue</button>
+      <button class="btn" data-id="2">Green</button>
+    </div>
+    <p id="msg">Press Start</p>
+  </div>
+
+  <script>
+    const startBtn = document.querySelector('#start');
+    const buttons = Array.from(document.querySelectorAll('.btn'));
+    const msgEl = document.querySelector('#msg');
+
+    let pattern = [];
+    let inputIndex = 0;
+    let locked = true;
+
+    function flash(btn) {
+      btn.classList.add('flash');
+      setTimeout(() => btn.classList.remove('flash'), 220);
+    }
+
+    function randStep() {
+      return Math.floor(Math.random() * buttons.length);
+    }
+
+    function playPattern() {
+      locked = true;
+      msgEl.textContent = 'Watch…';
+      let t = 0;
+      pattern.forEach((step) => {
+        setTimeout(() => flash(buttons[step]), t);
+        t += 450;
+      });
+      setTimeout(() => {
+        locked = false;
+        inputIndex = 0;
+        msgEl.textContent = 'Your turn…';
+      }, t + 150);
+    }
+
+    function start() {
+      pattern = [randStep(), randStep(), randStep()];
+      playPattern();
+    }
+
+    function onPress(id) {
+      if (locked) return;
+      flash(buttons[id]);
+
+      if (id === pattern[inputIndex]) {
+        inputIndex += 1;
+        if (inputIndex === pattern.length) {
+          locked = true;
+          msgEl.textContent = '✅ Correct! Press Start for a new pattern.';
+        }
+      } else {
+        locked = true;
+        msgEl.textContent = '❌ Wrong! Press Start to try again.';
+      }
+    }
+
+    startBtn.addEventListener('click', start);
+    buttons.forEach(b => b.addEventListener('click', () => onPress(Number(b.dataset.id))));
+  </script>
+</body>
+</html>

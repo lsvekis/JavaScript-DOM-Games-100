@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Game 25 — Typing Speed Sprint</title>
+  <style>
+    body{font-family:system-ui;padding:24px}
+    .box{max-width:820px;border:1px solid #ddd;border-radius:14px;padding:16px;background:#fff}
+    textarea{width:100%;min-height:120px;padding:10px;font-size:16px}
+    .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin:12px 0}
+    button{padding:10px 14px;cursor:pointer}
+    .badge{padding:6px 10px;border:1px solid #ddd;border-radius:999px;background:#fafafa}
+    .target{padding:12px;border:1px dashed #ddd;border-radius:12px;background:#fafafa}
+    #msg{color:#555;margin-top:10px}
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h1>Typing Speed Sprint</h1>
+    <div class="target" id="target"></div>
+    <div class="row">
+      <button id="start">Start</button>
+      <button id="reset">Reset</button>
+      <span class="badge">Time: <b id="time">10</b>s</span>
+      <span class="badge">Correct: <b id="correct">0</b></span>
+    </div>
+    <textarea id="input" disabled placeholder="Press Start…"></textarea>
+    <div id="msg">Press Start</div>
+  </div>
+
+  <script>
+    const targetEl = document.querySelector('#target');
+    const startBtn = document.querySelector('#start');
+    const resetBtn = document.querySelector('#reset');
+    const timeEl = document.querySelector('#time');
+    const correctEl = document.querySelector('#correct');
+    const input = document.querySelector('#input');
+    const msgEl = document.querySelector('#msg');
+
+    const samples = [
+      'DOM games level up your JavaScript skills fast.',
+      'Events, state, render — repeat until it clicks.',
+      'Small games are the best way to practice coding.'
+    ];
+
+    let target = '';
+    let timeLeft = 10;
+    let timerId = null;
+
+    const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+
+    function setTarget() {
+      target = pick(samples);
+      targetEl.textContent = target;
+    }
+
+    function countCorrect(typed) {
+      let c = 0;
+      for (let i = 0; i < Math.min(typed.length, target.length); i++) {
+        if (typed[i] === target[i]) c++;
+        else break;
+      }
+      return c;
+    }
+
+    function render() {
+      timeEl.textContent = String(timeLeft);
+      correctEl.textContent = String(countCorrect(input.value));
+    }
+
+    function stop(message) {
+      if (timerId) clearInterval(timerId);
+      timerId = null;
+      input.disabled = true;
+      msgEl.textContent = message;
+    }
+
+    function start() {
+      if (timerId) return;
+      timeLeft = 10;
+      input.value = '';
+      input.disabled = false;
+      input.focus();
+      msgEl.textContent = 'GO!';
+      render();
+
+      timerId = setInterval(() => {
+        timeLeft -= 1;
+        render();
+        if (timeLeft <= 0) {
+          stop(`Time! Correct prefix chars: ${countCorrect(input.value)}`);
+        }
+      }, 1000);
+    }
+
+    startBtn.addEventListener('click', start);
+    resetBtn.addEventListener('click', () => {
+      stop('Press Start');
+      timeLeft = 10;
+      setTarget();
+      input.value = '';
+      render();
+    });
+
+    input.addEventListener('input', render);
+
+    setTarget();
+    render();
+  </script>
+</body>
+</html>

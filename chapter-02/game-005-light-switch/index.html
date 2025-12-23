@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Game 05 — Light Switch</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; padding: 24px; }
+    .bulb {
+      width: 140px; height: 140px; border-radius: 50%;
+      border: 2px solid #ccc; margin: 18px 0;
+      display: grid; place-items: center;
+      font-size: 56px;
+      user-select: none;
+      transition: 200ms;
+    }
+    .on {
+      background: #fff3a0;
+      box-shadow: 0 0 26px rgba(255, 220, 80, 0.85);
+      border-color: #e6c94a;
+    }
+    .row { display: flex; gap: 10px; flex-wrap: wrap; }
+    button { padding: 10px 14px; cursor: pointer; font-size: 16px; }
+    .hint { color: #555; }
+  </style>
+</head>
+<body>
+  <h1>Light Switch</h1>
+  <p class="hint">Toggle the bulb on/off (button or Space key).</p>
+
+  <div class="bulb" id="bulb" aria-label="Light bulb">💡</div>
+
+  <div class="row">
+    <button id="switch">Toggle</button>
+  </div>
+
+  <script>
+    const bulb = document.querySelector('#bulb');
+    const sw = document.querySelector('#switch');
+
+    function toggleBulb() {
+      bulb.classList.toggle('on');
+      const isOn = bulb.classList.contains('on');
+      bulb.textContent = isOn ? '💡' : '💤';
+    }
+
+    sw.addEventListener('click', toggleBulb);
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === ' ') {
+        e.preventDefault();
+        toggleBulb();
+      }
+    });
+
+    // start off "off"
+    bulb.textContent = '💤';
+  </script>
+</body>
+</html>

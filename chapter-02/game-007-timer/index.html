@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Game 07 — Timer</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; padding: 24px; }
+    .time { font-size: 54px; margin: 12px 0; }
+    .row { display: flex; gap: 10px; flex-wrap: wrap; }
+    button { padding: 10px 14px; cursor: pointer; font-size: 16px; }
+    .hint { color: #555; }
+  </style>
+</head>
+<body>
+  <h1>Timer</h1>
+  <p class="hint">Start/Stop/Reset a seconds counter.</p>
+
+  <div class="time" id="time">0</div>
+
+  <div class="row">
+    <button id="start">Start</button>
+    <button id="stop">Stop</button>
+    <button id="reset">Reset</button>
+  </div>
+
+  <script>
+    const timeEl = document.querySelector('#time');
+    const startBtn = document.querySelector('#start');
+    const stopBtn = document.querySelector('#stop');
+    const resetBtn = document.querySelector('#reset');
+
+    let seconds = 0;
+    let intervalId = null;
+
+    function render() {
+      timeEl.textContent = String(seconds);
+    }
+
+    startBtn.addEventListener('click', () => {
+      if (intervalId !== null) return; // already running
+      intervalId = setInterval(() => {
+        seconds += 1;
+        render();
+      }, 1000);
+    });
+
+    stopBtn.addEventListener('click', () => {
+      if (intervalId === null) return;
+      clearInterval(intervalId);
+      intervalId = null;
+    });
+
+    resetBtn.addEventListener('click', () => {
+      seconds = 0;
+      render();
+    });
+
+    render();
+  </script>
+</body>
+</html>

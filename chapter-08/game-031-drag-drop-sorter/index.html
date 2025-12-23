@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Game 31 — Drag & Drop Sorter</title>
+  <style>
+    body{font-family:system-ui;padding:24px;background:#fafafa}
+    .card{max-width:720px;border:1px solid #ddd;border-radius:14px;padding:16px;background:#fff}
+    ul{list-style:none;padding:0;margin:0}
+    li{padding:12px 14px;border:1px solid #ddd;border-radius:12px;margin:10px 0;background:#fff;cursor:grab}
+    li.dragging{opacity:.4}
+    .hint{color:#555}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Drag & Drop Sorter</h1>
+    <p class="hint">Drag items to reorder.</p>
+    <ul id="list"></ul>
+  </div>
+
+  <script>
+    const list = document.querySelector('#list');
+
+    let items = ['Learn events', 'Build state', 'Render UI', 'Ship games', 'Level up'];
+    let dragIndex = null;
+
+    function render() {
+      list.innerHTML = '';
+      items.forEach((text, i) => {
+        const li = document.createElement('li');
+        li.textContent = text;
+        li.draggable = true;
+        li.dataset.index = String(i);
+
+        li.addEventListener('dragstart', () => {
+          dragIndex = i;
+          li.classList.add('dragging');
+        });
+
+        li.addEventListener('dragend', () => {
+          li.classList.remove('dragging');
+        });
+
+        li.addEventListener('dragover', (e) => {
+          e.preventDefault(); // allow drop
+        });
+
+        li.addEventListener('drop', () => {
+          const dropIndex = i;
+          if (dragIndex === null || dragIndex === dropIndex) return;
+
+          const moved = items.splice(dragIndex, 1)[0];
+          items.splice(dropIndex, 0, moved);
+          dragIndex = null;
+          render();
+        });
+
+        list.appendChild(li);
+      });
+    }
+
+    render();
+  </script>
+</body>
+</html>

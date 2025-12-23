@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Game 33 — Countdown + Milestones</title>
+  <style>
+    body{font-family:system-ui;padding:24px;background:#fafafa}
+    .card{max-width:720px;border:1px solid #ddd;border-radius:14px;padding:16px;background:#fff}
+    button{padding:10px 14px;cursor:pointer}
+    .time{font-size:54px;font-weight:900;margin:12px 0}
+    #msg{color:#555}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Countdown + Milestones</h1>
+    <button id="start">Start</button>
+    <button id="reset">Reset</button>
+    <div class="time" id="time">30</div>
+    <p id="msg">Press Start</p>
+  </div>
+
+  <script>
+    const startBtn = document.querySelector('#start');
+    const resetBtn = document.querySelector('#reset');
+    const timeEl = document.querySelector('#time');
+    const msgEl = document.querySelector('#msg');
+
+    let seconds = 30;
+    let timerId = null;
+    const fired = new Set();
+
+    function render(){ timeEl.textContent = String(seconds); }
+
+    function milestone(s) {
+      const map = {
+        20: 'Nice. Stay focused.',
+        10: '⚠️ Ten seconds!',
+        5:  '🔥 Final five!',
+        3:  '3…',
+        2:  '2…',
+        1:  '1…'
+      };
+      if (map[s] && !fired.has(s)) {
+        fired.add(s);
+        msgEl.textContent = map[s];
+      }
+    }
+
+    function start() {
+      if (timerId) return;
+      msgEl.textContent = 'Go!';
+      timerId = setInterval(() => {
+        seconds -= 1;
+        milestone(seconds);
+        render();
+        if (seconds <= 0) {
+          clearInterval(timerId);
+          timerId = null;
+          msgEl.textContent = '✅ Done!';
+        }
+      }, 1000);
+    }
+
+    function reset() {
+      if (timerId) { clearInterval(timerId); timerId = null; }
+      seconds = 30;
+      fired.clear();
+      msgEl.textContent = 'Press Start';
+      render();
+    }
+
+    startBtn.addEventListener('click', start);
+    resetBtn.addEventListener('click', reset);
+    render();
+  </script>
+</body>
+</html>

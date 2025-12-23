@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Game 36 — Lane Runner</title>
+  <style>
+    body{font-family:system-ui;padding:24px;background:#fafafa}
+    .track{width:720px;max-width:92vw;height:220px;border:1px solid #ddd;border-radius:14px;position:relative;overflow:hidden;background:#fff}
+    .player,.ob{position:absolute;border-radius:12px}
+    .player{width:44px;height:44px;left:30px;background:#111}
+    .ob{width:36px;height:36px;background:#0b5fff}
+    .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin:12px 0}
+    button{padding:10px 14px;cursor:pointer}
+    #msg{color:#555}
+  </style>
+</head>
+<body>
+  <h1>Lane Runner</h1>
+  <div class="row">
+    <button id="start">Start</button>
+    <button id="reset">Reset</button>
+    Score: <b id="score">0</b>
+  </div>
+  <div class="track" id="track"></div>
+  <p id="msg">Click the track to switch lanes.</p>
+
+  <script>
+    const track = document.querySelector('#track');
+    const startBtn = document.querySelector('#start');
+    const resetBtn = document.querySelector('#reset');
+    const scoreEl = document.querySelector('#score');
+    const msgEl = document.querySelector('#msg');
+
+    const lanes = [140, 60];
+    let lane = 0;
+    let score = 0;
+    let running = false;
+    let loopId = null;
+
+    const player = document.createElement('div');
+    player.className = 'player';
+
+    let ob = null;
+    let obX = 0;
+    let speed = 6;
+
+    function placePlayer() {
+      player.style.top = `${lanes[lane]}px`;
+    }
+
+    function spawnObstacle() {
+      if (ob) ob.remove();
+      ob = document.createElement('div');
+      ob.className = 'ob';
+      obX = track.clientWidth + 40;
+      ob.style.left = `${obX}px`;
+      ob.style.top = `${lanes[Math.floor(Math.random()*lanes.length)] + 4}px`;
+      track.appendChild(ob);
+    }
+
+    function rect(el){ return el.getBoundingClientRect(); }
+    function hit(a,b){
+      const A = rect(a), B = rect(b);
+      return !(A.right < B.left || A.left > B.right || A.bottom < B.top || A.top > B.bottom);
+    }
+
+    function tick() {
+      obX -= speed;
+      ob.style.left = `${obX}px`;
+
+      if (obX < -50) {
+        score += 1;
+        scoreEl.textContent = String(score);
+        if (score % 5 === 0) speed += 1;
+        spawnObstacle();
+      }
+
+      if (hit(player, ob)) stop('💥 Crash! Press Reset.');
+    }
+
+    function start() {
+      if (running) return;
+      running = true;
+      msgEl.textContent = 'GO! Click to switch lanes.';
+      loopId = setInterval(tick, 20);
+    }
+
+    function stop(message) {
+      running = false;
+      if (loopId) clearInterval(loopId);
+      loopId = null;
+      msgEl.textContent = message;
+    }
+
+    function reset() {
+      stop('Click Start');
+      track.innerHTML = '';
+      track.appendChild(player);
+      lane = 0;
+      score = 0;
+      speed = 6;
+      scoreEl.textContent = '0';
+      placePlayer();
+      spawnObstacle();
+    }
+
+    track.addEventListener('click', () => {
+      lane = lane === 0 ? 1 : 0;
+      placePlayer();
+    });
+
+    startBtn.addEventListener('click', start);
+    resetBtn.addEventListener('click', reset);
+
+    reset();
+  </script>
+</body>
+</html>

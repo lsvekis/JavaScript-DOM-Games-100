@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Game 21 — Modal Popup Challenge</title>
+  <style>
+    body{font-family:system-ui;padding:24px}
+    button{padding:10px 14px;cursor:pointer}
+    .overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;place-items:center}
+    .overlay.open{display:grid}
+    .modal{background:#fff;border-radius:14px;padding:16px;max-width:560px;width:min(92vw,560px)}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:10px}
+    p{color:#555}
+  </style>
+</head>
+<body>
+  <h1>Modal Popup Challenge</h1>
+  <p>Close using Escape, clicking the backdrop, or the Close button.</p>
+  <button id="open">Open Modal</button>
+
+  <div class="overlay" id="overlay" aria-hidden="true">
+    <div class="modal" id="modal" role="dialog" aria-modal="true" aria-label="Mission modal">
+      <h2>Mission</h2>
+      <p>Practice DOM class toggling + event handling.</p>
+      <div class="row">
+        <button id="close">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const openBtn = document.querySelector('#open');
+    const overlay = document.querySelector('#overlay');
+    const closeBtn = document.querySelector('#close');
+
+    function openModal() {
+      overlay.classList.add('open');
+      overlay.setAttribute('aria-hidden', 'false');
+      closeBtn.focus();
+    }
+
+    function closeModal() {
+      overlay.classList.remove('open');
+      overlay.setAttribute('aria-hidden', 'true');
+      openBtn.focus();
+    }
+
+    openBtn.addEventListener('click', openModal);
+    closeBtn.addEventListener('click', closeModal);
+
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) closeModal();
+    });
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && overlay.classList.contains('open')) closeModal();
+    });
+  </script>
+</body>
+</html>

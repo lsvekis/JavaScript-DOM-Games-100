@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Game 24 — Mini Memory Match</title>
+  <style>
+    body{font-family:system-ui;padding:24px}
+    .grid{display:grid;grid-template-columns:repeat(2,140px);gap:12px}
+    .card{width:140px;height:140px;border:1px solid #ddd;border-radius:14px;
+      display:grid;place-items:center;font-size:56px;background:#fafafa;cursor:pointer;user-select:none}
+    .card.revealed{background:#111;color:#fff;border-color:#111}
+    .row{display:flex;gap:10px;margin:12px 0;flex-wrap:wrap;align-items:center}
+    button{padding:10px 14px;cursor:pointer}
+    #msg{color:#555;margin-top:10px}
+  </style>
+</head>
+<body>
+  <h1>Memory Match (4 Cards)</h1>
+  <div class="row">
+    <button id="reset">Reset</button>
+    <div>Matches: <b id="matches">0</b></div>
+  </div>
+  <div class="grid" id="grid"></div>
+  <div id="msg">Find pairs!</div>
+
+  <script>
+    const grid = document.querySelector('#grid');
+    const resetBtn = document.querySelector('#reset');
+    const matchesEl = document.querySelector('#matches');
+    const msgEl = document.querySelector('#msg');
+
+    const emojis = ['🍒','⭐'];
+    let deck = [];
+    let matched = new Set();
+    let firstPick = null;
+    let lock = false;
+    let matches = 0;
+
+    function shuffle(arr) {
+      for (let i=arr.length-1;i>0;i--){
+        const j = Math.floor(Math.random()*(i+1));
+        [arr[i],arr[j]]=[arr[j],arr[i]];
+      }
+      return arr;
+    }
+
+    function newGame() {
+      deck = shuffle([...emojis, ...emojis]);
+      matched = new Set();
+      firstPick = null;
+      lock = false;
+      matches = 0;
+      matchesEl.textContent = '0';
+      msgEl.textContent = 'Find pairs!';
+      render();
+    }
+
+    function render() {
+      grid.innerHTML = '';
+      deck.forEach((val, i) => {
+        const c = document.createElement('div');
+        c.className = 'card';
+        c.dataset.index = String(i);
+
+        const show = matched.has(i) || firstPick === i;
+        if (show) {
+          c.classList.add('revealed');
+          c.textContent = val;
+        } else {
+          c.textContent = '❓';
+        }
+
+        grid.appendChild(c);
+      });
+    }
+
+    function revealTemp(i) {
+      const cards = grid.querySelectorAll('.card');
+      cards[i].classList.add('revealed');
+      cards[i].textContent = deck[i];
+    }
+
+    function onPick(i) {
+      if (lock) return;
+      if (matched.has(i)) return;
+      if (firstPick === i) return;
+
+      if (firstPick === null) {
+        firstPick = i;
+        render();
+        return;
+      }
+
+      const a = firstPick;
+      const b = i;
+      lock = true;
+      revealTemp(b);
+
+      if (deck[a] === deck[b]) {
+        matched.add(a);
+        matched.add(b);
+        matches += 1;
+        matchesEl.textContent = String(matches);
+        msgEl.textContent = '✅ Match!';
+        firstPick = null;
+        lock = false;
+        render();
+        if (matches === emojis.length) msgEl.textContent = '🏁 You matched all pairs!';
+      } else {
+        msgEl.textContent = '❌ Not a match…';
+        setTimeout(() => {
+          firstPick = null;
+          lock = false;
+          render();
+        }, 700);
+      }
+    }
+
+    grid.addEventListener('click', (e) => {
+      const card = e.target.closest('.card');
+      if (!card) return;
+      onPick(Number(card.dataset.index));
+    });
+
+    resetBtn.addEventListener('click', newGame);
+    newGame();
+  </script>
+</body>
+</html>

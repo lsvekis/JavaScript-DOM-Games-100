@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Game 23 — Word Unscramble</title>
+  <style>
+    body{font-family:system-ui;padding:24px}
+    .card{border:1px solid #ddd;border-radius:14px;padding:16px;max-width:720px}
+    .big{font-size:42px;font-weight:900;margin:10px 0}
+    input{padding:10px;font-size:16px;min-width:240px}
+    button{padding:10px 14px;cursor:pointer}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    #msg{margin-top:10px;color:#555}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Word Unscramble</h1>
+    <div class="big" id="scramble">????</div>
+    <div class="row">
+      <input id="guess" placeholder="Type the word..." autocomplete="off" />
+      <button id="check">Check</button>
+      <button id="next">New Word</button>
+    </div>
+    <div id="msg">Press New Word</div>
+  </div>
+
+  <script>
+    const scrambleEl = document.querySelector('#scramble');
+    const guessInput = document.querySelector('#guess');
+    const checkBtn = document.querySelector('#check');
+    const nextBtn = document.querySelector('#next');
+    const msgEl = document.querySelector('#msg');
+
+    const words = ['dom','browser','events','selector','callback','storage','render','toggle'];
+    let answer = '';
+
+    const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+
+    function shuffle(str) {
+      const a = str.split('');
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a.join('');
+    }
+
+    function newWord() {
+      answer = pick(words);
+      let s = shuffle(answer);
+      if (s === answer) s = shuffle(answer);
+      scrambleEl.textContent = s.toUpperCase();
+      guessInput.value = '';
+      msgEl.textContent = 'Guess the word!';
+      guessInput.focus();
+    }
+
+    function check() {
+      const g = guessInput.value.trim().toLowerCase();
+      if (!g) return;
+      if (g === answer) {
+        msgEl.textContent = '✅ Correct! New word…';
+        setTimeout(newWord, 600);
+      } else {
+        msgEl.textContent = '❌ Try again.';
+      }
+    }
+
+    nextBtn.addEventListener('click', newWord);
+    checkBtn.addEventListener('click', check);
+    guessInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') check(); });
+  </script>
+</body>
+</html>

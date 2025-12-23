@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Game 06 — Emoji Slot (1 Reel)</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; padding: 24px; }
+    .reel {
+      font-size: 72px;
+      border: 1px solid #ddd;
+      width: 160px; height: 140px;
+      border-radius: 12px;
+      display: grid; place-items: center;
+      user-select: none;
+    }
+    .row { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+    button { padding: 10px 14px; cursor: pointer; font-size: 16px; }
+    .hint { color: #555; }
+  </style>
+</head>
+<body>
+  <h1>Emoji Slot (1 Reel)</h1>
+  <p class="hint">Press Spin to randomize the emoji.</p>
+
+  <div class="reel" id="reel">❓</div>
+  <div class="row">
+    <button id="spin">Spin</button>
+  </div>
+
+  <script>
+    const reelEl = document.querySelector('#reel');
+    const spinBtn = document.querySelector('#spin');
+
+    const emojis = ['🍒', '🍋', '⭐', '💎', '🍀', '🔔', '7️⃣'];
+
+    function pickRandom(arr) {
+      const i = Math.floor(Math.random() * arr.length);
+      return arr[i];
+    }
+
+    spinBtn.addEventListener('click', () => {
+      reelEl.textContent = pickRandom(emojis);
+    });
+  </script>
+</body>
+</html>

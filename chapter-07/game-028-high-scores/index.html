@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Game 28 — High Scores</title>
+  <style>
+    body{font-family:system-ui;padding:24px}
+    .card{max-width:820px;border:1px solid #ddd;border-radius:14px;padding:16px;background:#fff}
+    input{padding:10px;font-size:16px}
+    button{padding:10px 14px;cursor:pointer}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:12px 0}
+    ol{margin:0;padding-left:22px}
+    li{margin:8px 0}
+    p{color:#555}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>High Scores</h1>
+    <p>Add scores, sort, remove, and persist them using localStorage.</p>
+
+    <div class="row">
+      <input id="name" placeholder="Name" autocomplete="off" />
+      <input id="score" placeholder="Score" type="number" />
+      <button id="add">Add</button>
+      <button id="sort">Sort Desc</button>
+      <button id="clear">Clear</button>
+    </div>
+
+    <ol id="list"></ol>
+  </div>
+
+  <script>
+    const nameInput = document.querySelector('#name');
+    const scoreInput = document.querySelector('#score');
+    const addBtn = document.querySelector('#add');
+    const sortBtn = document.querySelector('#sort');
+    const clearBtn = document.querySelector('#clear');
+    const listEl = document.querySelector('#list');
+
+    const KEY = 'domGameHighScores_21_30';
+    let scores = JSON.parse(localStorage.getItem(KEY) || '[]');
+
+    function save(){ localStorage.setItem(KEY, JSON.stringify(scores)); }
+
+    function render() {
+      listEl.innerHTML = '';
+      scores.forEach((s, i) => {
+        const li = document.createElement('li');
+        li.textContent = `${s.name} — ${s.score}`;
+
+        const del = document.createElement('button');
+        del.textContent = 'Remove';
+        del.style.marginLeft = '10px';
+        del.addEventListener('click', () => {
+          scores.splice(i, 1);
+          save();
+          render();
+        });
+
+        li.appendChild(del);
+        listEl.appendChild(li);
+      });
+    }
+
+    function add() {
+      const name = nameInput.value.trim();
+      const score = Number(scoreInput.value);
+      if (!name || !Number.isFinite(score)) return;
+
+      scores.push({ name, score });
+      nameInput.value = '';
+      scoreInput.value = '';
+      save();
+      render();
+    }
+
+    addBtn.addEventListener('click', add);
+    sortBtn.addEventListener('click', () => {
+      scores.sort((a,b) => b.score - a.score);
+      save();
+      render();
+    });
+    clearBtn.addEventListener('click', () => {
+      scores = [];
+      save();
+      render();
+    });
+
+    render();
+  </script>
+</body>
+</html>

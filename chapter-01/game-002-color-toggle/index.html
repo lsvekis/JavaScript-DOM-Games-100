@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Game 02 — Color Toggle</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; padding: 24px; transition: 200ms; }
+    .card { padding: 16px; border-radius: 12px; border: 1px solid #ddd; max-width: 560px; }
+    button { padding: 10px 14px; cursor: pointer; font-size: 16px; }
+    .dark { background: #111; color: #f2f2f2; }
+    .dark .card { border-color: #333; background: #1a1a1a; }
+    .hint { color: #555; }
+    .dark .hint { color: #bbb; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Color Toggle</h1>
+    <p class="hint">Toggle the page between light and dark.</p>
+    <button id="toggle">Enable Dark Mode</button>
+  </div>
+
+  <script>
+    const toggleBtn = document.querySelector('#toggle');
+
+    function syncLabel() {
+      const isDark = document.body.classList.contains('dark');
+      toggleBtn.textContent = isDark ? 'Enable Light Mode' : 'Enable Dark Mode';
+    }
+
+    toggleBtn.addEventListener('click', () => {
+      document.body.classList.toggle('dark');
+      syncLabel();
+    });
+
+    syncLabel();
+  </script>
+</body>
+</html>
